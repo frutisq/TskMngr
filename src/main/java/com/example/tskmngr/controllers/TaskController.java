@@ -3,8 +3,10 @@ package com.example.tskmngr.controllers;
 import com.example.tskmngr.dto.TaskDTO;
 import com.example.tskmngr.entity.Task;
 import com.example.tskmngr.repository.TaskRepository;
+import com.example.tskmngr.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.util.List;
 
@@ -13,10 +15,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TaskController {
     private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
 
     @PostMapping
     public Task createTask(@RequestBody Task task) {
         return taskRepository.save(task);
+    }
+
+    @PostMapping("/user/{userId}")
+    public Task addUserToTask(@PathVariable Long userId, @RequestBody Task task) {
+        return userRepository.findById(userId).map(user ->
+        {task.setUser(user);
+            return taskRepository.save(task);
+        }).orElseThrow(()-> new RuntimeException("User not found"));
     }
 
     @GetMapping

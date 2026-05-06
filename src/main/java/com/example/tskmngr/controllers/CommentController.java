@@ -4,6 +4,7 @@ import com.example.tskmngr.entity.Comment;
 
 import com.example.tskmngr.repository.CommentRepository;
 import com.example.tskmngr.repository.TaskRepository;
+import com.example.tskmngr.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class CommentController {
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
+
 
     @PostMapping("/api/task/{taskId}/comments")
     public Comment createComment(@PathVariable Long taskId, @RequestBody Comment comment){
