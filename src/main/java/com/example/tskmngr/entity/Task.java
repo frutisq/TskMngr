@@ -1,4 +1,4 @@
-package entity;
+package com.example.tskmngr.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

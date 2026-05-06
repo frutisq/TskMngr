@@ -1,4 +1,4 @@
-package dto;
+package com.example.tskmngr.dto;
 
 import lombok.Data;
 
