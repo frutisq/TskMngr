@@ -3,43 +3,33 @@ package entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "username")
+    @Column(name = "username", nullable = false,unique = true)
     private String username;
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "createdAt")
     private LocalDateTime createdAt;
 
+    @OneToMany(mappedBy = "user")
+    private List<Task> tasks;
 
-    private enum status {OPEN, IN_PROGRESS, DONE}
-    private enum priority {LOW, MEDIUM, HIGH}
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private status status;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "priority")
-    private priority priority;
-
-    public User() {
-
-    }
 }

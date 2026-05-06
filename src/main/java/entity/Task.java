@@ -2,39 +2,42 @@ package entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name="task")
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "title")
+    @Column(name = "title", nullable = false)
     private String title;
+
     @Column(name = "description")
     private String description;
+
     @Column(name = "createdAt")
     private LocalDate createdAt;
 
-    private enum status {OPEN, IN_PROGRESS, DONE}
-
-    private enum priority {LOW, MEDIUM, HIGH}
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private status status;
-    @Enumerated(EnumType.STRING)
-    @Column(name = "priority")
-    private priority priority;
+    private Priority priority;
+
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
-    public Task() {}
+
+    @OneToMany(mappedBy = "task",cascade = CascadeType.ALL)
+    private List<Comment> comments;
 }
