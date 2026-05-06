@@ -14,38 +14,41 @@ import java.util.List;
 public class TaskController {
     private final TaskRepository taskRepository;
 
-@PostMapping
-public Task createTask(@RequestBody Task task) {
-    return taskRepository.save(task);
-}
-@GetMapping
-public List<Task> getAllTasks(){
-    return taskRepository.findAll();
-}
-@PutMapping("/{id}")
-public Task updateTask(@PathVariable Long id, @RequestBody Task taskDetails) {
-    Task task = taskRepository.findById(id)
-            .orElseThrow(()-> new RuntimeException("Not found"));
+    @PostMapping
+    public Task createTask(@RequestBody Task task) {
+        return taskRepository.save(task);
+    }
 
-    task.setTitle(taskDetails.getTitle());
-    task.setDescription(taskDetails.getDescription());
-    task.setPriority(taskDetails.getPriority());
-    task.setStatus(taskDetails.getStatus());
+    @GetMapping
+    public List<Task> getAllTasks() {
+        return taskRepository.findAll();
+    }
 
-    return taskRepository.save(task);
+    @PutMapping("/{id}")
+    public Task updateTask(@PathVariable Long id, @RequestBody Task taskDetails) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Not found"));
 
-}
-@DeleteMapping("/{id}")
-public void deleteTask(@PathVariable Long id){
-    taskRepository.deleteById(id);
-}
+        task.setTitle(taskDetails.getTitle());
+        task.setDescription(taskDetails.getDescription());
+        task.setPriority(taskDetails.getPriority());
+        task.setStatus(taskDetails.getStatus());
 
-@GetMapping("/{id}")
+        return taskRepository.save(task);
+
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteTask(@PathVariable Long id) {
+        taskRepository.deleteById(id);
+    }
+
+    @GetMapping("/{id}")
     public TaskDTO getTask(@PathVariable Long id) {
-    TaskDTO dto = new TaskDTO();
-    dto.setTitle("Изучить DTO");
-    dto.setDescription("Разобраться зачем они нужны");
-    dto.setStatus("IN_PROGRESS");
-    return dto;
-}
+        TaskDTO dto = new TaskDTO();
+        dto.setTitle("Изучить DTO");
+        dto.setDescription("Разобраться зачем они нужны");
+        dto.setStatus("IN_PROGRESS");
+        return dto;
+    }
 }
