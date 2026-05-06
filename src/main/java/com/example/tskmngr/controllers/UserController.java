@@ -2,7 +2,6 @@ package com.example.tskmngr.controllers;
 
 
 import com.example.tskmngr.entity.User;
-import com.example.tskmngr.repository.TaskRepository;
 import com.example.tskmngr.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -20,14 +19,14 @@ public class UserController {
 
     @PutMapping("/{userId}")
     public User updateUser(@PathVariable Long userId,@RequestBody User userDetails) {
-        User user = userRepository.findById(userId).orElse(null);
-        if (user != null) {
-            user.setUsername(userDetails.getUsername());
-            user.setEmail(userDetails.getEmail());
-            user.setCreatedAt(userDetails.getCreatedAt());
+        return userRepository.findById(userId)
+                .map(user -> {
+                    user.setUsername(userDetails.getUsername());
+                    user.setEmail(userDetails.getEmail());
+                    return userRepository.save(user);
+                } ).orElseThrow(() -> new RuntimeException("User not dound with id"));
         }
-        return userRepository.save(user);
+
     }
 
 
-}
