@@ -15,8 +15,6 @@ import java.util.List;
 @RequestMapping("/api/tasks")
 @RequiredArgsConstructor
 public class TaskController {
-    private final TaskRepository taskRepository;
-    private final UserRepository userRepository;
 
     private final TaskService taskService;
 
@@ -30,7 +28,6 @@ public class TaskController {
         return taskService.updateTask(taskId, taskDetails);
 
     }
-
     @DeleteMapping("/{id}")
     public void deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
@@ -41,7 +38,7 @@ public class TaskController {
         return taskService.findAll();
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
     public Task getTaskById(@RequestParam("id") Long id) {
         return taskService.findById(id);
     }
@@ -51,7 +48,7 @@ public class TaskController {
         return taskService.createTaskForUser(userId, task);
     }
 
-    @PatchMapping("{taskId/assign/{userId}")
+    @PatchMapping("/{taskId}/assign/{userId}")
     public Task addUserToTask(@PathVariable Long userId,@PathVariable Long taskId) {
         return taskService.assignUserToTask(userId, taskId);
     }

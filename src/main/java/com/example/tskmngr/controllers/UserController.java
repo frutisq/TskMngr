@@ -24,12 +24,12 @@ public class UserController {
         return userService.findAll();
     }
 
-    @GetMapping("/{userId")
+    @GetMapping("/{userId}")
     public User getUserById(@PathVariable Long userId) {
         return userService.findById(userId);
     }
 
-    @PutMapping("/{userId")
+    @PutMapping("/{userId}")
     public User updateUser(@PathVariable Long userId,@RequestBody User userDetails){
         return userService.update(userId, userDetails);
     }
