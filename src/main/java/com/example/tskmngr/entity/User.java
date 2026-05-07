@@ -26,8 +26,14 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "createdAt")
+    @Column(name = "createdAt",updatable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
 
     @OneToMany(mappedBy = "user")
     private List<Task> tasks;
