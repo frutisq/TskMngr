@@ -4,6 +4,7 @@ import com.example.tskmngr.dto.TaskDTO;
 import com.example.tskmngr.entity.Task;
 import com.example.tskmngr.repository.TaskRepository;
 import com.example.tskmngr.repository.UserRepository;
+import com.example.tskmngr.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,49 +18,42 @@ public class TaskController {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
 
+    private final TaskService taskService;
+
     @PostMapping
     public Task createTask(@RequestBody Task task) {
-        return taskRepository.save(task);
-    }
-
-    @PostMapping("/user/{userId}")
-    public Task addUserToTask(@PathVariable Long userId, @RequestBody Task task) {
-        return userRepository.findById(userId).map(user ->
-        {task.setUser(user);
-            return taskRepository.save(task);
-        }).orElseThrow(()-> new RuntimeException("User not found"));
-    }
-
-    @GetMapping
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+        return taskService.saveTask(task);
     }
 
     @PutMapping("/{id}")
-    public Task updateTask(@PathVariable Long id, @RequestBody Task taskDetails) {
-        Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
-
-        task.setTitle(taskDetails.getTitle());
-        task.setDescription(taskDetails.getDescription());
-        task.setPriority(taskDetails.getPriority());
-        task.setStatus(taskDetails.getStatus());
-
-        return taskRepository.save(task);
+    public Task updateTask(@PathVariable Long taskId, @RequestBody Task taskDetails) {
+        return taskService.updateTask(taskId, taskDetails);
 
     }
 
     @DeleteMapping("/{id}")
     public void deleteTask(@PathVariable Long id) {
-        taskRepository.deleteById(id);
+        taskService.deleteTask(id);
     }
 
-    @GetMapping("/{id}")
-    public TaskDTO getTask(@PathVariable Long id) {
-        TaskDTO dto = new TaskDTO();
-        dto.setTitle("Изучить DTO");
-        dto.setDescription("Разобраться зачем они нужны");
-        dto.setStatus("IN_PROGRESS");
-        return dto;
+    @GetMapping
+    public List<Task> getAllTasks() {
+        return taskService.findAll();
     }
+
+    @GetMapping
+    public Task getTaskById(@RequestParam("id") Long id) {
+        return taskService.findById(id);
+    }
+
+    @PostMapping("/user/{userId}")
+    public Task createUserToTask(@PathVariable Long userId, @RequestBody Task task) {
+        return taskService.createTaskForUser(userId, task);
+    }
+
+    @PatchMapping("{taskId/assign/{userId}")
+    public Task addUserToTask(@PathVariable Long userId,@PathVariable Long taskId) {
+        return taskService.assignUserToTask(userId, taskId);
+    }
+
 }

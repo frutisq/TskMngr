@@ -32,7 +32,7 @@ public class Task {
     private Status status;
 
     @Enumerated(EnumType.STRING)
-    private Priority priority;
+    private Priority priority = Priority.LOW;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -40,4 +40,6 @@ public class Task {
 
     @OneToMany(mappedBy = "task",cascade = CascadeType.ALL)
     private List<Comment> comments;
+
+
 }
