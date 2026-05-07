@@ -34,8 +34,9 @@ public class User {
         this.createdAt = LocalDateTime.now();
     }
 
-
     @OneToMany(mappedBy = "user")
     private List<Task> tasks;
+
+
 
 }

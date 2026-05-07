@@ -5,32 +5,32 @@ import com.example.tskmngr.entity.Comment;
 import com.example.tskmngr.repository.CommentRepository;
 import com.example.tskmngr.repository.TaskRepository;
 import com.example.tskmngr.repository.UserRepository;
+import com.example.tskmngr.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/comments")
 public class CommentController {
-    private final CommentRepository commentRepository;
-    private final TaskRepository taskRepository;
+    private final CommentService commentService;
 
-
-    @PostMapping("/api/task/{taskId}/comments")
-    public Comment createComment(@PathVariable Long taskId, @RequestBody Comment comment){
-     return taskRepository.findById(taskId).map(task -> {
-         comment.setTask(task);
-         return commentRepository.save(comment);
-     }).orElseThrow(()-> new RuntimeException("Task not found"));
+    @PostMapping("/task/{taskId}/user/{userId}")
+    public Comment createComment(@PathVariable Long taskId, @PathVariable Long userId, @RequestBody Comment comment) {
+        return commentService.addComment(taskId, userId, comment);
     }
 
-    @PutMapping("/api/comments/{id}")
-    public Comment updateComment(@PathVariable Long id, @RequestBody Comment commentDetails){
-       return commentRepository.findById(id)
-               .map(comment -> {
-                   comment.setText(commentDetails.getText());
-                   return commentRepository.save(comment);
-               }).orElseThrow(()-> new RuntimeException("Comment not found"));
+    @GetMapping("/task/{taskId}")
+    public List<Comment> getComments(@PathVariable Long taskId) {
+        return commentService.getCommentsByTaskId(taskId);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteComment(@PathVariable Long id) {
+        commentService.deleteComment(id);
+    }
+
 
 }
