@@ -1,5 +1,6 @@
 package com.example.tskmngr.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,6 +35,7 @@ public class User {
         this.createdAt = LocalDateTime.now();
     }
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Task> tasks;
 

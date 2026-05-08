@@ -1,4 +1,5 @@
 package com.example.tskmngr.entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -6,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -26,7 +28,12 @@ public class Task {
     private String description;
 
     @Column(name = "createdAt")
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     @Enumerated(EnumType.STRING)
     private Status status;
@@ -34,10 +41,12 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private Priority priority = Priority.LOW;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "task",cascade = CascadeType.ALL)
     private List<Comment> comments;
 

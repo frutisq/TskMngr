@@ -1,5 +1,7 @@
 package com.example.tskmngr.service;
 
+import com.example.tskmngr.dto.TaskDTO;
+import com.example.tskmngr.dto.mapper.TaskMapper;
 import com.example.tskmngr.entity.Task;
 import com.example.tskmngr.entity.User;
 import com.example.tskmngr.repository.TaskRepository;
@@ -9,15 +11,19 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class TaskService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final TaskMapper taskMapper;
 
-    public List<Task> findAll() {
-        return taskRepository.findAll();
+    public List<TaskDTO> findAll() {
+        return taskRepository.findAll().stream()
+                .map(taskMapper::toTaskDTO)
+                .collect(Collectors.toList());
     }
 
     public Task findById(Long id) {
