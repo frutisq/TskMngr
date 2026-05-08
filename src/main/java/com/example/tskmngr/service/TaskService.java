@@ -26,19 +26,20 @@ public class TaskService {
                 .collect(Collectors.toList());
     }
 
-    public Task findById(Long id) {
-        return taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
+    public TaskDTO findById(Long id) {
+        Task task = taskRepository.findById(id).orElseThrow(()-> new RuntimeException("Task not found"));
+        return taskMapper.toTaskDTO(task);
     }
 
-    @Transactional
-    public Task updateTask(Long id, Task taskDetails) {
-        Task task = findById(id);
-        task.setTitle(taskDetails.getTitle());
-        task.setDescription(taskDetails.getDescription());
-        task.setStatus(taskDetails.getStatus());
-        task.setPriority(taskDetails.getPriority());
-        return taskRepository.save(task);
-    }
+//    @Transactional
+//    public TaskDTO updateTask(Long id, Task taskDetails) {
+//        Task task = findById(id);
+//        task.setTitle(taskDetails.getTitle());
+//        task.setDescription(taskDetails.getDescription());
+//        task.setStatus(taskDetails.getStatus());
+//        task.setPriority(taskDetails.getPriority());
+//        return taskRepository.save(task);
+//    }
 
     @Transactional
     public void deleteTask(Long id) {

@@ -2,7 +2,9 @@ package com.example.tskmngr.dto.mapper;
 
 import com.example.tskmngr.dto.TaskDTO;
 import com.example.tskmngr.entity.Task;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TaskMapper {
     public TaskDTO toTaskDTO(Task task) {
         if (task == null) {
