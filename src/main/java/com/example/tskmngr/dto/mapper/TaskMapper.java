@@ -20,6 +20,7 @@ public class TaskMapper {
 
         if (task.getUser() != null) {
             taskDTO.setUserId(task.getUser().getId());
+            taskDTO.setUserName(task.getUser().getUsername());
         }
 
         return taskDTO;
