@@ -2,6 +2,8 @@ package com.example.tskmngr.service;
 
 import com.example.tskmngr.dto.TaskDTO;
 import com.example.tskmngr.dto.mapper.TaskMapper;
+import com.example.tskmngr.entity.Priority;
+import com.example.tskmngr.entity.Status;
 import com.example.tskmngr.entity.Task;
 import com.example.tskmngr.entity.User;
 import com.example.tskmngr.repository.TaskRepository;
@@ -22,33 +24,39 @@ public class TaskService {
 
     public List<TaskDTO> findAll() {
         return taskRepository.findAll().stream()
-                .map(taskMapper::toTaskDTO)
+                .map(taskMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     public TaskDTO findById(Long id) {
-        Task task = taskRepository.findById(id).orElseThrow(()-> new RuntimeException("Task not found"));
-        return taskMapper.toTaskDTO(task);
-    }
-
-//    @Transactional
-//    public TaskDTO updateTask(Long id, Task taskDetails) {
-//        Task task = findById(id);
-//        task.setTitle(taskDetails.getTitle());
-//        task.setDescription(taskDetails.getDescription());
-//        task.setStatus(taskDetails.getStatus());
-//        task.setPriority(taskDetails.getPriority());
-//        return taskRepository.save(task);
-//    }
-
-    @Transactional
-    public void deleteTask(Long id) {
-        taskRepository.deleteById(id);
+        Task task = taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
+        return taskMapper.toDTO(task);
     }
 
     @Transactional
-    public Task saveTask(Task task) {
-        return taskRepository.save(task);
+    public TaskDTO saveTask(TaskDTO dto) {
+
+        Task task = taskMapper.toEntity(dto);
+
+        Task savedTask = taskRepository.save(task);
+
+        return taskMapper.toDTO(savedTask);
+    }
+
+    @Transactional
+    public TaskDTO updateTask(Long id, TaskDTO dto) {
+
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        task.setTitle(dto.getTitle());
+        task.setDescription(dto.getDescription());
+        task.setPriority(dto.getPriority());
+        task.setStatus(dto.getStatus());
+
+        Task updatedTask = taskRepository.save(task);
+
+        return taskMapper.toDTO(updatedTask);
     }
 
     @Transactional
@@ -59,11 +67,18 @@ public class TaskService {
     }
 
     @Transactional
-    public Task assignUserToTask(Long userId, Long taskId) {
-       User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-       Task task = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task not found"));
-       task.setUser(user);
-       return taskRepository.save(task);
+    public TaskDTO assignUserToTask(Long userId, Long taskId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task not found"));
+        task.setUser(user);
+        Task updated = taskRepository.save(task);
+
+        return taskMapper.toDTO(updated);
+    }
+
+    @Transactional
+    public void deleteTask(Long id) {
+        taskRepository.deleteById(id);
     }
 
 }

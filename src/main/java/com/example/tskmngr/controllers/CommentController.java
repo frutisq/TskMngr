@@ -1,5 +1,6 @@
 package com.example.tskmngr.controllers;
 
+import com.example.tskmngr.dto.CommentDTO;
 import com.example.tskmngr.entity.Comment;
 
 import com.example.tskmngr.repository.CommentRepository;
@@ -18,19 +19,28 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping("/task/{taskId}/user/{userId}")
-    public Comment createComment(@PathVariable Long taskId, @PathVariable Long userId, @RequestBody Comment comment) {
-        return commentService.addComment(taskId, userId, comment);
+    public CommentDTO addComment(@PathVariable Long taskId,
+                                 @PathVariable Long userId,
+                                 @RequestBody CommentDTO dto) {
+
+        return commentService.addComment(taskId, userId, dto);
     }
 
     @GetMapping("/task/{taskId}")
-    public List<Comment> getComments(@PathVariable Long taskId) {
+    public List<CommentDTO> getComments(@PathVariable Long taskId) {
+
         return commentService.getCommentsByTaskId(taskId);
+    }
+
+    @PutMapping("/{id}")
+    public CommentDTO updateComment(@PathVariable Long id,
+                                    @RequestBody CommentDTO dto) {
+
+        return commentService.updateComment(id, dto);
     }
 
     @DeleteMapping("/{id}")
     public void deleteComment(@PathVariable Long id) {
         commentService.deleteComment(id);
     }
-
-
 }

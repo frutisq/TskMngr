@@ -1,5 +1,7 @@
 package com.example.tskmngr.service;
 
+import com.example.tskmngr.dto.CommentDTO;
+import com.example.tskmngr.dto.mapper.CommentMapper;
 import com.example.tskmngr.entity.Comment;
 import com.example.tskmngr.entity.Task;
 import com.example.tskmngr.entity.User;
@@ -15,21 +17,37 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class CommentService {
-    private CommentRepository commentRepository;
-    private TaskRepository taskRepository;
-    private UserRepository userRepository;
+
+    private final CommentRepository commentRepository;
+    private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
+    private final CommentMapper commentMapper;
 
     @Transactional
-    public Comment addComment(Long taskId,Long userId, Comment comment) {
-        Task task = taskRepository.findById(taskId).orElseThrow(()-> new RuntimeException("Task not found"));
-        User user = userRepository.findById(userId).orElseThrow(()-> new RuntimeException("User not found"));
+    public CommentDTO addComment(Long taskId, Long userId, CommentDTO dto) {
+
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Comment comment = commentMapper.toEntity(dto);
+
         comment.setTask(task);
         comment.setUser(user);
-        return commentRepository.save(comment);
+
+        Comment savedComment = commentRepository.save(comment);
+
+        return commentMapper.toDTO(savedComment);
     }
 
-    public List<Comment> getCommentsByTaskId(Long taskId) {
-        return commentRepository.findByTaskId(taskId);
+    public List<CommentDTO> getCommentsByTaskId(Long taskId) {
+
+        return commentRepository.findByTaskId(taskId)
+                .stream()
+                .map(commentMapper::toDTO)
+                .toList();
     }
 
     @Transactional
@@ -37,11 +55,18 @@ public class CommentService {
         commentRepository.deleteById(id);
     }
 
-//    @Transactional
-//    public Comment updateComment(Long id, Comment commentDetails) {
-//        Comment comment = commentRepository.findById(id).orElseThrow(()-> new RuntimeException("..."));
-//        comment.setText(commentDetails.getText());
-//        return commentRepository.save(comment);
-//    }
+    @Transactional
+    public CommentDTO updateComment(Long id, CommentDTO dto) {
 
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
+
+        comment.setText(dto.getText());
+
+        Comment updatedComment = commentRepository.save(comment);
+
+        return commentMapper.toDTO(updatedComment);
+    }
 }
+
+

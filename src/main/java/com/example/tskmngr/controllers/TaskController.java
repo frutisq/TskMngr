@@ -21,15 +21,11 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping
-    public Task createTask(@RequestBody Task task) {
-        return taskService.saveTask(task);
-    }
+    public TaskDTO createTask(@RequestBody TaskDTO dto) {
 
-//    @PutMapping("/{id}")
-//    public Task updateTask(@PathVariable Long taskId, @RequestBody Task taskDetails) {
-//        return taskService.updateTask(taskId, taskDetails);
-//
-//    }
+        return taskService.saveTask(dto);
+
+    }
 
     @DeleteMapping("/{id}")
     public void deleteTask(@PathVariable Long id) {
@@ -41,8 +37,9 @@ public class TaskController {
         return taskService.findAll();
     }
 
+//  @RequestParam("id")
     @GetMapping("/{id}")
-    public TaskDTO getTaskById(@RequestParam("id") Long id) {
+    public TaskDTO getTaskById(@PathVariable Long id) {
         return taskService.findById(id);
     }
 
@@ -52,8 +49,19 @@ public class TaskController {
     }
 
     @PatchMapping("/{taskId}/assign/{userId}")
-    public Task addUserToTask(@PathVariable Long userId,@PathVariable Long taskId) {
+    public TaskDTO addUserToTask(@PathVariable Long userId,
+                                 @PathVariable Long taskId) {
+
         return taskService.assignUserToTask(userId, taskId);
+
+    }
+
+    @PutMapping("/{id}")
+    public TaskDTO updateTask(@PathVariable Long id,
+                              @RequestBody TaskDTO dto) {
+
+        return taskService.updateTask(id, dto);
+
     }
 
 }

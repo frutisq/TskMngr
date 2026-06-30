@@ -1,5 +1,6 @@
 package com.example.tskmngr.controllers;
 
+import com.example.tskmngr.dto.UserDTO;
 import com.example.tskmngr.entity.User;
 import com.example.tskmngr.repository.UserRepository;
 import com.example.tskmngr.service.UserService;
@@ -13,26 +14,30 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.save(user);
+    public UserDTO createUser(@RequestBody UserDTO userDTO) {
+        return userService.saveUser(userDTO);
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<UserDTO> getAllUsers() {
         return userService.findAll();
     }
 
     @GetMapping("/{userId}")
-    public User getUserById(@PathVariable Long userId) {
+    public UserDTO getUserById(@PathVariable Long userId) {
         return userService.findById(userId);
     }
 
     @PutMapping("/{userId}")
-    public User updateUser(@PathVariable Long userId,@RequestBody User userDetails){
-        return userService.update(userId, userDetails);
+    public UserDTO updateUser(@PathVariable Long userId, @RequestBody UserDTO dto) {
+        return userService.update(userId, dto);
     }
 
-
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable Long id) {
+        userService.delete(id);
+    }
 
 }
