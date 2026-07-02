@@ -22,9 +22,7 @@ public class TaskController {
 
     @PostMapping
     public TaskDTO createTask(@RequestBody TaskDTO dto) {
-
         return taskService.saveTask(dto);
-
     }
 
     @DeleteMapping("/{id}")
@@ -37,7 +35,7 @@ public class TaskController {
         return taskService.findAll();
     }
 
-//  @RequestParam("id")
+
     @GetMapping("/{id}")
     public TaskDTO getTaskById(@PathVariable Long id) {
         return taskService.findById(id);
@@ -51,17 +49,13 @@ public class TaskController {
     @PatchMapping("/{taskId}/assign/{userId}")
     public TaskDTO addUserToTask(@PathVariable Long userId,
                                  @PathVariable Long taskId) {
-
         return taskService.assignUserToTask(userId, taskId);
-
     }
 
     @PutMapping("/{id}")
     public TaskDTO updateTask(@PathVariable Long id,
                               @RequestBody TaskDTO dto) {
-
         return taskService.updateTask(id, dto);
-
     }
 
 }

@@ -31,7 +31,7 @@ public class UserMapper {
         User user = new User();
 
         user.setId(dto.getId());
-        user.setUsername(user.getUsername());
+        user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
 
         return user;

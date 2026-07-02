@@ -23,3 +23,7 @@ export function deleteTask(id) {
 export function assignUser(taskId, userId) {
     return api.patch(`/tasks/${taskId}/assign/${userId}`);
 }
+
+export function createTaskForUser(userId, task) {
+    return api.post(`/tasks/user/${userId}`, task);
+}

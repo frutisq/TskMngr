@@ -246,53 +246,127 @@ Back
 </template>
 
 <style scoped>
-
-.container{
-
-width:700px;
-margin:40px auto;
-display:flex;
-flex-direction:column;
-gap:12px;
-
+.container {
+  max-width: 720px;
+  margin: 40px auto;
+  background: white;
+  padding: 36px 44px;
+  border-radius: 28px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06);
 }
 
-input,
-textarea,
-select{
-
-padding:10px;
-font-size:15px;
-
+.container h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 28px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-textarea{
-
-min-height:100px;
-
+.container label {
+  margin-top: 16px;
+  font-weight: 600;
+  color: #334155;
 }
 
-.comment{
-
-padding:12px;
-background:#f3f4f6;
-border-radius:8px;
-margin-bottom:10px;
-
+.container input,
+.container textarea,
+.container select {
+  margin-top: 4px;
 }
 
-.buttons{
-
-display:flex;
-gap:10px;
-
+hr {
+  border: none;
+  border-top: 2px solid #f1f5f9;
+  margin: 24px 0;
 }
 
-button{
-
-padding:10px 18px;
-cursor:pointer;
-
+h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 12px;
 }
 
+.assign-section {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.assign-section select {
+  flex: 1;
+  min-width: 150px;
+}
+
+.assign-section button {
+  background: #6366f1;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 30px;
+  white-space: nowrap;
+}
+
+.assign-section button:hover {
+  background: #4f46e5;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+}
+
+.comment {
+  background: #f8fafc;
+  padding: 14px 18px;
+  border-radius: 14px;
+  margin-bottom: 12px;
+}
+
+.comment b {
+  color: #0f172a;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.comment p {
+  margin: 0;
+  color: #334155;
+}
+
+textarea {
+  margin: 8px 0 10px 0;
+}
+
+.buttons {
+  display: flex;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.buttons button:first-child {
+  background: #6366f1;
+  color: white;
+  padding: 12px 32px;
+  border-radius: 30px;
+  font-weight: 600;
+}
+
+.buttons button:first-child:hover {
+  background: #4f46e5;
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.buttons button:last-child {
+  background: transparent;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  padding: 12px 28px;
+  border-radius: 30px;
+}
+
+.buttons button:last-child:hover {
+  background: #f1f5f9;
+  transform: none;
+  box-shadow: none;
+}
 </style>
