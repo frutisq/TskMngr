@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -20,17 +21,12 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
-    private final UserRepository userRepository;
     private final CommentMapper commentMapper;
 
     @Transactional
-    public CommentDTO addComment(Long taskId, Long userId, CommentDTO dto) {
-
+    public CommentDTO addComment(Long taskId, User user, CommentDTO dto) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
 
         Comment comment = commentMapper.toEntity(dto);
 
@@ -38,12 +34,10 @@ public class CommentService {
         comment.setUser(user);
 
         Comment savedComment = commentRepository.save(comment);
-
         return commentMapper.toDTO(savedComment);
     }
 
     public List<CommentDTO> getCommentsByTaskId(Long taskId) {
-
         return commentRepository.findByTaskId(taskId)
                 .stream()
                 .map(commentMapper::toDTO)

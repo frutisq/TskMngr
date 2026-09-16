@@ -1,5 +1,6 @@
 package com.example.tskmngr.controllers;
 
+import com.example.tskmngr.dto.RegisterRequest;
 import com.example.tskmngr.dto.UserDTO;
 import com.example.tskmngr.entity.User;
 import com.example.tskmngr.repository.UserRepository;
@@ -16,8 +17,8 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public UserDTO createUser(@RequestBody UserDTO userDTO) {
-        return userService.saveUser(userDTO);
+    public UserDTO createUser(@RequestBody RegisterRequest request) {
+        return userService.saveUser(request);
     }
 
     @GetMapping

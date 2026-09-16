@@ -4,9 +4,9 @@ export function getComments(taskId) {
     return api.get(`/comments/task/${taskId}`);
 }
 
-export function addComment(taskId, userId, comment) {
+export function addComment(taskId, comment) {
     return api.post(
-        `/comments/task/${taskId}/user/${userId}`,
+        `/comments/task/${taskId}`,
         comment
     );
 }

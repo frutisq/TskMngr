@@ -1,11 +1,14 @@
 package com.example.tskmngr.service;
 
+import com.example.tskmngr.dto.RegisterRequest;
 import com.example.tskmngr.dto.UserDTO;
 import com.example.tskmngr.dto.mapper.UserMapper;
 import com.example.tskmngr.entity.User;
 import com.example.tskmngr.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +19,9 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
 
     public List<UserDTO> findAll() {
         return userRepository.findAll()
@@ -33,12 +39,13 @@ public class UserService {
     }
 
     @Transactional
-    public UserDTO saveUser(UserDTO dto) {
-
-        User user = userMapper.toEntity(dto);
-
+    public UserDTO saveUser(RegisterRequest request) {
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
+        user.setRole(request.getRole());
         User savedUser = userRepository.save(user);
-
         return userMapper.toDTO(savedUser);
     }
 

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="page-wrapper">
+        <div class="container">
+            <div class="header-container">
+                <h2 class="header-container__text">Registration</h2>
+            </div>
+
+            <div class="form-container">
+                <form th:action="@{/registration}" method="post" class="form-container__form">
+                    <div class="form-container_input-wrapper">
+                        <input type="text"
+                               name="username"
+                               placeholder="Enter your name"
+                               class="form-container_input"
+                               required>
+                    </div>
+
+                    <div class="form-container_input-wrapper">
+                        <input type="email"
+                               name="email"
+                               placeholder="Enter your email"
+                               class="form-container_input"
+                               required>
+                    </div>
+
+                    <div class="form-container_input-wrapper">
+                        <input type="password"
+                               name="password"
+                               placeholder="Enter your password"
+                               class="form-container_input"
+                               required>
+                    </div>
+
+                    <div class="form-container_button-wrapper">
+                        <button type="submit" class="form-container_button">Sign up</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="footer-link-container">
+                <span class="footer-link-container__text">
+                    Already have an account?
+                    <a th:href="@{/login}" class="footer-link-container_link">Log in</a>
+                </span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

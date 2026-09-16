@@ -20,7 +20,18 @@ const router = createRouter({
             path: "/create",
             name: "create",
             component: CreateTaskView
-        }
+      },
+      {
+          path: "/login",
+          component: () => import("../views/LoginView.vue")
+      },
+      {
+          path: "/registration",
+          component: () => import("../views/RegisterView.vue")
+      },
+      {
+        path: "/logout",
+      }
     ]
 });
 

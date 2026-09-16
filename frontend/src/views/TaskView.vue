@@ -57,27 +57,17 @@ async function assign() {
 }
 
 async function addNewComment() {
-
     if (!newComment.value.trim())
         return;
 
-    if (!selectedUser.value) {
-
-        alert("Assign user first");
-
-        return;
-    }
-
     await addComment(
         task.value.id,
-        selectedUser.value,
         {
             text: newComment.value
         }
     );
 
     newComment.value = "";
-
     await loadComments();
 }
 

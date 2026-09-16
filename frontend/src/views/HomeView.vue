@@ -53,6 +53,17 @@ function createTask() {
     router.push("/create");
 }
 
+async function handleLogout() {
+  try {
+    await axios.post('/api/auth/logout');
+  } catch (error) {
+    console.error('Ошибка при выходе на сервере:', error);
+  } finally {
+    localStorage.removeItem('token');
+    router.push('/login');
+  }
+}
+
 const tasksByStatus = computed(() => {
     const groups = { todo: [], inProgress: [], done: [] };
 
@@ -84,7 +95,7 @@ function initDrag() {
     const createSortable = (id, status) => {
         const el = document.getElementById(id);
         if (!el) return;
-        
+
         new Sortable(el, {
             group: "tasks",
             animation: 150,
@@ -109,7 +120,8 @@ onMounted(() => loadTasks());
     <div class="container">
         <div class="header">
             <h1>📋 Task Manager</h1>
-            <button @click="createTask">➕ New Task</button>
+            <button @click="createTask">New Task</button>
+            <button @click="handleLogout">Выхади</button>
         </div>
 
         <div class="board">

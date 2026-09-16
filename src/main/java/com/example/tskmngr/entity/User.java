@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @Getter
@@ -21,14 +22,22 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username", nullable = false, unique = true)
-    private String username;
-
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @Column(name = "username", nullable = false,length = 20)
+    private String username;
+
+    @Column(name = "password",nullable = false,length = 70)
+    private String password;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "role", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
 
     @PrePersist
     protected void onCreate() {
@@ -38,5 +47,6 @@ public class User {
     @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Task> tasks;
+
 
 }

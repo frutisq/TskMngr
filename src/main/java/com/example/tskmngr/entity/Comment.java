@@ -22,7 +22,7 @@ public class Comment {
     @Column(name = "text",columnDefinition = "TEXT",nullable = false)
     private String text;
 
-    @Column(name="createdAt")
+    @Column(name="created_at")
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
