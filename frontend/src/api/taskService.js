@@ -27,3 +27,7 @@ export function assignUser(taskId, userId) {
 export function createTaskForUser(userId, task) {
     return api.post(`/tasks/user/${userId}`, task);
 }
+
+export function updateTaskStatus(id, request) {
+    return api.patch(`/tasks/${id}/status`, request);
+}

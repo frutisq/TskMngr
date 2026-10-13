@@ -24,7 +24,7 @@ async function register() {
     loading.value = true;
 
     try {
-        await axios.post("/api/auth/register", {
+        await axios.post("/api/auth/registration", {
             username: username.value,
             email: email.value,
             password: password.value

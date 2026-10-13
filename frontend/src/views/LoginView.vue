@@ -1,7 +1,40 @@
 <script setup>
+import { ref } from "vue";
 import { useRouter } from "vue-router";
+import api from "@/api/axios";
 
 const router = useRouter();
+
+const username = ref("");
+const password = ref("");
+const error = ref("");
+const loading = ref(false);
+
+async function handleLogin() {
+    error.value = "";
+    loading.value = true;
+
+    try {
+        const { data } = await api.post("/auth/login", {
+            username: username.value,
+            password: password.value,
+        });
+
+
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("refreshToken", data.refreshToken);
+
+        router.push("/");
+    } catch (e) {
+        if (e.response) {
+            error.value = e.response.data?.message ?? "Неверный логин или пароль";
+        } else {
+            error.value = "Сервер недоступен";
+        }
+    } finally {
+        loading.value = false;
+    }
+}
 
 function goToRegister() {
     router.push("/registration");
@@ -13,44 +46,41 @@ function goToRegister() {
         <div class="auth-card">
             <h1>Вход</h1>
 
-            <!--
-                Пока логин обрабатывает Spring Security.
-                Поэтому форма отправляется именно на /login.
-            -->
-            <form action="/api/auth/login" method="post">
-
+            <form @submit.prevent="handleLogin">
                 <div class="form-group">
                     <label>Username</label>
-
                     <input
+                        v-model="username"
                         type="text"
-                        name="username"
                         placeholder="Введите username"
+                        autocomplete="username"
                         required
                     />
                 </div>
 
                 <div class="form-group">
                     <label>Password</label>
-
                     <input
+                        v-model="password"
                         type="password"
-                        name="password"
                         placeholder="Введите пароль"
+                        autocomplete="current-password"
                         required
                     />
                 </div>
 
-                <button type="submit">
-                    Войти
+                <p v-if="error" class="error">{{ error }}</p>
+
+                <button type="submit" :disabled="loading">
+                    {{ loading ? "Вхожу..." : "Войти" }}
                 </button>
             </form>
 
             <div class="register-link">
                 <span>Нет аккаунта?</span>
-
                 <button
                     class="secondary-button"
+                    type="button"
                     @click="goToRegister"
                 >
                     Зарегистрироваться
@@ -114,6 +144,17 @@ function goToRegister() {
     font-size: 1rem;
 }
 
+.auth-card form button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.error {
+    color: #dc2626;
+    font-size: 0.9rem;
+    margin: -8px 0 12px;
+}
+
 .register-link {
     margin-top: 22px;
     padding-top: 18px;
@@ -128,5 +169,6 @@ function goToRegister() {
     background: none;
     cursor: pointer;
     text-decoration: underline;
+    font-size: 1rem;
 }
 </style>

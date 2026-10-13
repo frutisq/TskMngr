@@ -1,9 +1,8 @@
 package com.example.tskmngr.service;
 
 import com.example.tskmngr.dto.TaskDTO;
+import com.example.tskmngr.dto.UpdateTaskStatusRequest;
 import com.example.tskmngr.dto.mapper.TaskMapper;
-import com.example.tskmngr.entity.Priority;
-import com.example.tskmngr.entity.Status;
 import com.example.tskmngr.entity.Task;
 import com.example.tskmngr.entity.User;
 import com.example.tskmngr.repository.TaskRepository;
@@ -56,6 +55,15 @@ public class TaskService {
 
         Task updatedTask = taskRepository.save(task);
 
+        return taskMapper.toDTO(updatedTask);
+    }
+
+    @Transactional
+    public TaskDTO updateTaskStatusRequest(Long id, UpdateTaskStatusRequest request) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+        task.setStatus(request.getStatus());
+        Task updatedTask = taskRepository.save(task);
         return taskMapper.toDTO(updatedTask);
     }
 

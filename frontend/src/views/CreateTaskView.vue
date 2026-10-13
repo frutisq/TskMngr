@@ -1,14 +1,13 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
-
-import { createTaskForUser } from "../api/taskService";
+import { createTask, createTaskForUser } from "../api/taskService";
 import { getAllUsers } from "../api/userService";
+import { getUserRole } from "../utils/auth";
 
 const router = useRouter();
 
 const users = ref([]);
-
 const selectedUser = ref("");
 
 const task = ref({
@@ -18,19 +17,24 @@ const task = ref({
     status: "TO_DO"
 });
 
+const isAdmin = computed(() => getUserRole() === "ADMIN");
+
 async function loadUsers() {
     const response = await getAllUsers();
     users.value = response.data;
 }
 
 async function create() {
-
     if (!task.value.title.trim()) {
         alert("Title is required");
         return;
     }
 
-    await createTaskForUser(selectedUser.value, task.value);
+    if (isAdmin.value && selectedUser.value) {
+        await createTaskForUser(selectedUser.value, task.value);
+    } else {
+        await createTask(task.value);
+    }
 
     router.push("/");
 }
@@ -40,7 +44,7 @@ function cancel() {
 }
 
 onMounted(() => {
-    loadUsers();
+    if (isAdmin.value) loadUsers();
 });
 </script>
 
@@ -62,17 +66,19 @@ onMounted(() => {
             <option value="HIGH">HIGH</option>
         </select>
 
-        <label>Assign User</label>
-        <select v-model="selectedUser">
-            <option value="">-- no user --</option>
-            <option
-                v-for="user in users"
-                :key="user.id"
-                :value="user.id"
-            >
-                {{ user.username }}
-            </option>
-        </select>
+        <template v-if="isAdmin">
+            <label>Assign User</label>
+            <select v-model="selectedUser">
+                <option value="">-- no user --</option>
+                <option
+                    v-for="user in users"
+                    :key="user.id"
+                    :value="user.id"
+                >
+                    {{ user.username }}
+                </option>
+            </select>
+        </template>
 
         <div class="buttons">
             <button @click="create">Create</button>

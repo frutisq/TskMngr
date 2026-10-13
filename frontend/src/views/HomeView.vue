@@ -1,14 +1,16 @@
+
 <script setup>
-import { onMounted, ref, computed, nextTick } from "vue";
+import { onMounted, onBeforeUnmount, ref, computed, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import Sortable from "sortablejs";
 
-import { getAllTasks, deleteTask, updateTask } from "../api/taskService";
+import { getAllTasks, deleteTask, updateTaskStatus } from "../api/taskService";
 import { getComments } from "../api/commentService";
 import TaskCard from "./TaskCard.vue";
 
 const router = useRouter();
 const tasks = ref([]);
+const sortableInstances = [];
 
 async function loadTasks() {
     try {
@@ -19,7 +21,6 @@ async function loadTasks() {
 
         await nextTick();
         initDrag();
-
     } catch (error) {
         console.error(error);
         alert("Не удалось загрузить задачи");
@@ -27,22 +28,32 @@ async function loadTasks() {
 }
 
 async function loadCommentsForTasks() {
-    const commentPromises = tasks.value.map(async (task) => {
-        try {
-            const response = await getComments(task.id);
-            task.comments = response.data;
-        } catch (error) {
-            console.error(`Ошибка загрузки комментариев для задачи ${task.id}`, error);
-            task.comments = [];
-        }
-    });
-    await Promise.all(commentPromises);
+    await Promise.all(
+        tasks.value.map(async (task) => {
+            try {
+                const response = await getComments(task.id);
+                task.comments = response.data;
+            } catch (error) {
+                console.error(
+                    `Ошибка загрузки комментариев для задачи ${task.id}`,
+                    error
+                );
+                task.comments = [];
+            }
+        })
+    );
 }
 
 async function removeTask(id) {
     if (!confirm("Удалить задачу?")) return;
-    await deleteTask(id);
-    await loadTasks();
+
+    try {
+        await deleteTask(id);
+        await loadTasks();
+    } catch (error) {
+        console.error(error);
+        alert("Не удалось удалить задачу");
+    }
 }
 
 function openTask(id) {
@@ -54,27 +65,28 @@ function createTask() {
 }
 
 async function handleLogout() {
-  try {
-    await axios.post('/api/auth/logout');
-  } catch (error) {
-    console.error('Ошибка при выходе на сервере:', error);
-  } finally {
-    localStorage.removeItem('token');
-    router.push('/login');
-  }
+    localStorage.removeItem("token");
+    router.push("/login");
 }
 
 const tasksByStatus = computed(() => {
-    const groups = { todo: [], inProgress: [], done: [] };
+    const groups = {
+        todo: [],
+        inProgress: [],
+        done: []
+    };
 
-    tasks.value.forEach(task => {
-        const status = (task.status || '').toUpperCase().trim();
+    tasks.value.forEach((task) => {
+        const status = (task.status || "").toUpperCase().trim();
 
-        if (status === 'TO_DO' || status === 'TODO' || status === 'TO DO') {
+        if (status === "TO_DO" || status === "TODO" || status === "TO DO") {
             groups.todo.push(task);
-        } else if (status === 'IN_PROGRESS' || status === 'IN PROGRESS') {
+        } else if (
+            status === "IN_PROGRESS" ||
+            status === "IN PROGRESS"
+        ) {
             groups.inProgress.push(task);
-        } else if (status === 'DONE') {
+        } else if (status === "DONE") {
             groups.done.push(task);
         } else {
             groups.todo.push(task);
@@ -86,26 +98,50 @@ const tasksByStatus = computed(() => {
 
 /* ---------------- DRAG & DROP ---------------- */
 
-async function changeStatus(task, status) {
-    task.status = status;
-    await updateTask(task.id, task);
+async function changeStatus(task, newStatus) {
+    const previousStatus = task.status;
+
+    if (previousStatus === newStatus) return;
+    try {
+        await updateTaskStatus(task.id, {
+            status: newStatus
+        });
+        task.status = newStatus;
+    } catch (error) {
+        console.error("Не удалось изменить статус задачи:", error);
+        alert("Не удалось изменить статус задачи. Доска будет обновлена.");
+        await loadTasks();
+    }
 }
 
 function initDrag() {
-    const createSortable = (id, status) => {
-        const el = document.getElementById(id);
-        if (!el) return;
+    sortableInstances.forEach((instance) => instance.destroy());
+    sortableInstances.length = 0;
 
-        new Sortable(el, {
+    const createSortable = (id, status) => {
+        const element = document.getElementById(id);
+        if (!element) return;
+
+        const instance = new Sortable(element, {
             group: "tasks",
             animation: 150,
-            onAdd: async (evt) => {
-                const taskId = evt.item.dataset.id;
-                const task = tasks.value.find(t => t.id == taskId);
-                if (!task) return;
+
+            onAdd: async (event) => {
+                const taskId = event.item.dataset.id;
+                const task = tasks.value.find(
+                    (item) => String(item.id) === String(taskId)
+                );
+
+                if (!task) {
+                    await loadTasks();
+                    return;
+                }
+
                 await changeStatus(task, status);
             }
         });
+
+        sortableInstances.push(instance);
     };
 
     createSortable("todo", "TO_DO");
@@ -114,21 +150,25 @@ function initDrag() {
 }
 
 onMounted(() => loadTasks());
+
+onBeforeUnmount(() => {
+    sortableInstances.forEach((instance) => instance.destroy());
+    sortableInstances.length = 0;
+});
 </script>
 
 <template>
     <div class="container">
         <div class="header">
-            <h1>📋 Task Manager</h1>
+            <h1>Board</h1>
             <button @click="createTask">New Task</button>
-            <button @click="handleLogout">Выхади</button>
+            <button @click="handleLogout">Выйти</button>
         </div>
 
         <div class="board">
-            <!-- TO DO -->
             <div class="column">
                 <div class="column-header">
-                    <h2>📝 To Do</h2>
+                    <h2>To Do</h2>
                     <span class="count">{{ tasksByStatus.todo.length }}</span>
                 </div>
 
@@ -148,11 +188,12 @@ onMounted(() => loadTasks());
                 </div>
             </div>
 
-            <!-- IN PROGRESS -->
             <div class="column">
                 <div class="column-header">
-                    <h2>⚡ In Progress</h2>
-                    <span class="count">{{ tasksByStatus.inProgress.length }}</span>
+                    <h2>In Progress</h2>
+                    <span class="count">
+                        {{ tasksByStatus.inProgress.length }}
+                    </span>
                 </div>
 
                 <div id="inProgress">
@@ -171,10 +212,9 @@ onMounted(() => loadTasks());
                 </div>
             </div>
 
-            <!-- DONE -->
             <div class="column">
                 <div class="column-header">
-                    <h2>✅ Done</h2>
+                    <h2>Done</h2>
                     <span class="count">{{ tasksByStatus.done.length }}</span>
                 </div>
 
@@ -287,7 +327,6 @@ onMounted(() => loadTasks());
     margin-left: auto;
 }
 
-/* Цветовые акценты для колонок */
 .column:nth-child(1) .column-header {
     border-bottom-color: #fcd34d;
 }
@@ -324,6 +363,7 @@ onMounted(() => loadTasks());
     .board {
         grid-template-columns: 1fr 1fr;
     }
+
     .header {
         flex-direction: column;
         align-items: stretch;
