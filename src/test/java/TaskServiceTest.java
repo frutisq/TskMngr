@@ -1,53 +1,229 @@
-//import com.example.tskmngr.entity.Task;
-//import com.example.tskmngr.entity.User;
-//import com.example.tskmngr.repository.TaskRepository;
-//import com.example.tskmngr.repository.UserRepository;
-//import com.example.tskmngr.service.TaskService;
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.extension.ExtendWith;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.junit.jupiter.MockitoExtension;
-//
-//import java.util.Optional;
-//
-//import org.objectweb.asm.*;
-//import static org.hamcrest.Matchers.any;
-//import static org.junit.jupiter.api.Assertions.assertEquals;
-//import static org.junit.jupiter.api.Assertions.assertNotNull;
-//import static org.mockito.Mockito.verify;
-//import static org.mockito.Mockito.when;
-//import static org.springframework.test.web.client.ExpectedCount.times;
-//
-//@ExtendWith(MockitoExtension.class)
-//public class TaskServiceTest {
-//    @Mock
-//    private TaskRepository taskRepository;
-//    @Mock
-//    private UserRepository userRepository;
-//
-//    @InjectMocks
-//    private TaskService taskService;
-//
-//    @Test
-//    void assignUserToTask_ShouldAssignUserToTask() {
-//        Long userId = 1L;
-//        Long taskId = 10L;
-//
-//        User mockUser = new User();
-//        mockUser.setId(userId);
-//
-//        Task mockTask = new Task();
-//        mockTask.setId(taskId);
-//
-//        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-//        when(taskRepository.findById(taskId)).thenReturn(Optional.of(mockTask));
-//        when(taskRepository.save(any(Task.class))).thenAnswer(i -> i.getArguments()[0]);
-//
-//        Task result = taskService.assignUserToTask(userId, taskId);
-//
-//        assertNotNull(result.getUser());
-//        assertEquals(userId,result.getUser().getId());
-//        verify(taskRepository,times(1)).save(any(Task.class));
-//    }
-//}
+import com.example.tskmngr.dto.TaskDTO;
+import com.example.tskmngr.dto.UpdateTaskStatusRequest;
+import com.example.tskmngr.dto.mapper.TaskMapper;
+import com.example.tskmngr.entity.Priority;
+import com.example.tskmngr.entity.Status;
+import com.example.tskmngr.entity.Task;
+import com.example.tskmngr.entity.User;
+import com.example.tskmngr.repository.TaskRepository;
+import com.example.tskmngr.repository.UserRepository;
+import com.example.tskmngr.service.TaskService;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class TaskServiceTest {
+
+    @Mock
+    private TaskRepository taskRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private TaskMapper taskMapper;
+
+    @InjectMocks
+    private TaskService taskService;
+
+    @Test
+    void saveTask_shouldSaveTaskAndReturnDto() {
+        // Arrange — подготовка данных
+        TaskDTO requestDto = new TaskDTO();
+        TaskDTO expectedDto = new TaskDTO();
+
+        Task task = new Task();
+        Task savedTask = new Task();
+
+        when(taskMapper.toEntity(requestDto))
+                .thenReturn(task);
+
+        when(taskRepository.save(task))
+                .thenReturn(savedTask);
+
+        when(taskMapper.toDTO(savedTask))
+                .thenReturn(expectedDto);
+
+        // Act — вызов тестируемого метода
+        TaskDTO result = taskService.saveTask(requestDto);
+
+        // Assert — проверка результата и взаимодействий
+        assertSame(expectedDto, result);
+
+        verify(taskMapper).toEntity(requestDto);
+        verify(taskRepository).save(task);
+        verify(taskMapper).toDTO(savedTask);
+    }
+
+    @Test
+    void findTaskById_shouldReturnTask() {
+        Task task = new Task();
+        TaskDTO expectedDto = new TaskDTO();
+
+        when(taskRepository.findById(1L))
+                .thenReturn(Optional.of(task));
+        when(taskMapper.toDTO(task))
+                .thenReturn(expectedDto);
+
+        //act
+        TaskDTO result = taskService.findById(1L);
+
+        assertEquals(expectedDto, result);
+
+        verify(taskRepository).findById(1L);
+    }
+
+    @Test
+    void findAllTasks_shouldReturnTasks() {
+        List<Task> tasks = new ArrayList<>();
+        Task task1 = new Task();
+        Task task2 = new Task();
+        TaskDTO dto1 = new TaskDTO();
+        TaskDTO dto2 = new TaskDTO();
+
+        tasks.add(task1);
+        tasks.add(task2);
+
+        when(taskRepository.findAll())
+                .thenReturn(tasks);
+        when(taskMapper.toDTO(task1))
+                .thenReturn(dto1);
+        when(taskMapper.toDTO(task2))
+                .thenReturn(dto2);
+
+        List<TaskDTO> result = taskService.findAll();
+
+        assertEquals(2, result.size());
+    }
+
+
+    @Test
+    void updateTaskStatus_shouldUpdateTask() {
+        // Arrange: исходная задача
+        Task task = new Task();
+        task.setId(1L);
+        task.setTitle("task1");
+        task.setDescription("description");
+        task.setPriority(Priority.MEDIUM);
+        task.setStatus(Status.TO_DO);
+
+
+        UpdateTaskStatusRequest request = new UpdateTaskStatusRequest();
+        request.setStatus(Status.IN_PROGRESS);
+
+        TaskDTO expectedDto = new TaskDTO();
+        expectedDto.setStatus(Status.IN_PROGRESS);
+
+        when(taskRepository.findById(1L))
+                .thenReturn(Optional.of(task));
+
+        when(taskRepository.save(task))
+                .thenReturn(task);
+
+        when(taskMapper.toDTO(task))
+                .thenReturn(expectedDto);
+
+
+        TaskDTO updatedTask =
+                taskService.updateTaskStatusRequest(1L, request);
+
+
+        assertEquals(Status.IN_PROGRESS, updatedTask.getStatus());
+
+        verify(taskRepository).findById(1L);
+        verify(taskRepository).save(task);
+    }
+
+    @Test
+    void updateTask_shouldUpdateTaskAndReturnDto() {
+        Task task = new Task();
+
+        
+        task.setId(1L);
+        task.setTitle("task1");
+        task.setDescription("description");
+        task.setPriority(Priority.MEDIUM);
+        task.setStatus(Status.IN_PROGRESS);
+
+        TaskDTO requestDto = new TaskDTO();
+        requestDto.setTitle("new title");
+        requestDto.setDescription("new description");
+        requestDto.setPriority(Priority.HIGH);
+        requestDto.setStatus(Status.IN_PROGRESS);
+
+        TaskDTO expectedDto = new TaskDTO();
+
+        when(taskRepository.findById(1L))
+                .thenReturn(Optional.of(task));
+        when(taskRepository.save(task))
+                .thenReturn(task);
+        when(taskMapper.toDTO(task))
+                .thenReturn(expectedDto);
+
+        TaskDTO result = taskService.updateTask(1L, requestDto);
+
+
+        assertSame(expectedDto, result);
+
+        assertEquals("new title", task.getTitle());
+        assertEquals("new description", task.getDescription());
+        assertEquals(Priority.HIGH, task.getPriority());
+        assertEquals(Status.IN_PROGRESS, task.getStatus());
+    }
+
+    @Test
+    void assignUserToTask_shouldAssignUserToTask() {
+        User user = new User();
+        user.setId(1L);
+        Task task = new Task();
+        task.setId(1L);
+        task.setTitle("task1");
+        task.setDescription("description");
+        task.setPriority(Priority.MEDIUM);
+        task.setStatus(Status.IN_PROGRESS);
+
+        TaskDTO expectedDto = new TaskDTO();
+
+        when(userRepository.findById(1L))
+                .thenReturn(Optional.of(user));
+        when(taskRepository.findById(1L))
+                .thenReturn(Optional.of(task));
+        when(taskRepository.save(task))
+                .thenReturn(task);
+        when(taskMapper.toDTO(task))
+                .thenReturn(expectedDto);
+
+        TaskDTO result = taskService.assignUserToTask(1L,1L);
+
+        assertSame(expectedDto,result);
+
+        assertEquals(user,task.getUser());
+
+        verify(userRepository).findById(1L);
+        verify(taskRepository).findById(1L);
+        verify(taskMapper).toDTO(task);
+        verify(taskRepository).save(task);
+    }
+
+    @Test
+    void deleteTask_shouldDeleteTask(){
+        taskService.deleteTask(1L);
+        verify(taskRepository).deleteById(1L);
+
+    }
+
+}
+
