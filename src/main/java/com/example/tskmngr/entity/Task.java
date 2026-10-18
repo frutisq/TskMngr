@@ -27,7 +27,7 @@ public class Task {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "createdAt")
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @PrePersist

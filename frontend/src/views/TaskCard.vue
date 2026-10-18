@@ -27,7 +27,7 @@ function handleDelete() {
             <PriorityBadge :priority="task.priority" />
         </div>
 
-        <p class="user-info"><b>👤 User:</b> {{ task.userName ?? "Не назначен" }}</p>
+        <p class="user-info"><b>👤User:</b> {{ task.userName ?? "Не назначен" }}</p>
 
         <div class="comment-wrapper">
             <span class="comment-icon">💬</span>
@@ -43,8 +43,8 @@ function handleDelete() {
         </div>
 
         <div class="buttons">
-            <button @click="handleOpen">📖 Open</button>
-            <button @click="handleDelete">🗑️ Delete</button>
+            <button @click="handleOpen">Открыть</button>
+            <button @click="handleDelete">Удалить</button>
         </div>
     </div>
 </template>

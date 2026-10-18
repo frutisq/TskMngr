@@ -20,7 +20,6 @@ public class AuthController {
 
     @PostMapping("/registration")
     public UserDTO registration(@RequestBody RegisterRequest request) {
-        System.out.println("REGISTRATION CONTROLLER REACHED");
         return userService.saveUser(request);
     }
 

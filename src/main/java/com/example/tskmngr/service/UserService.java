@@ -5,6 +5,8 @@ import com.example.tskmngr.dto.UserDTO;
 import com.example.tskmngr.dto.mapper.UserMapper;
 import com.example.tskmngr.entity.User;
 import com.example.tskmngr.entity.UserRole;
+import com.example.tskmngr.exceptionHandler.EmailAlreadyExistsException;
+import com.example.tskmngr.exceptionHandler.UsernameAlreadyExistsException;
 import com.example.tskmngr.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.NoArgsConstructor;
@@ -43,20 +45,19 @@ public class UserService {
 
     @Transactional
     public UserDTO saveUser(RegisterRequest request) {
-        User user = new User();
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new EmailAlreadyExistsException(request.getEmail());
+        }
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new UsernameAlreadyExistsException(request.getUsername());
+        }
 
+        User user = new User();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
         user.setRole(UserRole.USER);
-        Optional<User> emailExists = userRepository.findByEmail(user.getEmail());
-        if(emailExists.isPresent()) {
-            throw new RuntimeException("Email already exists");
-        }
-        Optional<User> usernameExists = userRepository.findByUsername(user.getUsername());
-        if(usernameExists.isPresent()) {
-            throw new RuntimeException("Имя пользователя уже существует.");
-        }
+
         User savedUser = userRepository.save(user);
         return userMapper.toDTO(savedUser);
     }
