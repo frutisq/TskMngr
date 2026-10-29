@@ -1,4 +1,4 @@
-package com.example.tskmngr.exceptionHandler;
+package exception;
 
 public class UsernameAlreadyExistsException extends RuntimeException {
     public UsernameAlreadyExistsException(String username) {

@@ -1,4 +1,4 @@
-package com.example.tskmngr.exceptionHandler;
+package exception;
 
 public class EmailAlreadyExistsException extends RuntimeException {
     public EmailAlreadyExistsException(String email) {
