@@ -5,19 +5,16 @@ import com.example.tskmngr.dto.UserDTO;
 import com.example.tskmngr.dto.mapper.UserMapper;
 import com.example.tskmngr.entity.User;
 import com.example.tskmngr.entity.UserRole;
-import com.example.tskmngr.exceptionHandler.EmailAlreadyExistsException;
-import com.example.tskmngr.exceptionHandler.UsernameAlreadyExistsException;
+import exception.EmailAlreadyExistsException;
+import exception.UsernameAlreadyExistsException;
 import com.example.tskmngr.repository.UserRepository;
 import jakarta.transaction.Transactional;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

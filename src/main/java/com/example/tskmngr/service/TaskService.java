@@ -7,6 +7,8 @@ import com.example.tskmngr.entity.Task;
 import com.example.tskmngr.entity.User;
 import com.example.tskmngr.repository.TaskRepository;
 import com.example.tskmngr.repository.UserRepository;
+import exception.TaskNotFoundException;
+import exception.UserNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,7 +30,8 @@ public class TaskService {
     }
 
     public TaskDTO findById(Long id) {
-        Task task = taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException(id));
         return taskMapper.toDTO(task);
     }
 
@@ -46,7 +49,7 @@ public class TaskService {
     public TaskDTO updateTask(Long id, TaskDTO dto) {
 
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new TaskNotFoundException(id));
 
         task.setTitle(dto.getTitle());
         task.setDescription(dto.getDescription());
@@ -61,7 +64,7 @@ public class TaskService {
     @Transactional
     public TaskDTO updateTaskStatusRequest(Long id, UpdateTaskStatusRequest request) {
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new TaskNotFoundException(id));
         task.setStatus(request.getStatus());
         Task updatedTask = taskRepository.save(task);
         return taskMapper.toDTO(updatedTask);
@@ -69,15 +72,18 @@ public class TaskService {
 
     @Transactional
     public Task createTaskForUser(Long userId, Task task) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
         task.setUser(user);
         return taskRepository.save(task);
     }
 
     @Transactional
     public TaskDTO assignUserToTask(Long userId, Long taskId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        Task task = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException(taskId));
         task.setUser(user);
         Task updated = taskRepository.save(task);
 
