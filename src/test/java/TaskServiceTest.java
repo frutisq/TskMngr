@@ -9,17 +9,23 @@ import com.example.tskmngr.repository.TaskRepository;
 import com.example.tskmngr.repository.UserRepository;
 import com.example.tskmngr.service.TaskService;
 
+import exception.TaskNotFoundException;
+import exception.UserNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,7 +47,6 @@ class TaskServiceTest {
 
     @Test
     void saveTask_shouldSaveTaskAndReturnDto() {
-        // Arrange — подготовка данных
         TaskDTO requestDto = new TaskDTO();
         TaskDTO expectedDto = new TaskDTO();
 
@@ -57,10 +62,8 @@ class TaskServiceTest {
         when(taskMapper.toDTO(savedTask))
                 .thenReturn(expectedDto);
 
-        // Act — вызов тестируемого метода
         TaskDTO result = taskService.saveTask(requestDto);
 
-        // Assert — проверка результата и взаимодействий
         assertSame(expectedDto, result);
 
         verify(taskMapper).toEntity(requestDto);
@@ -78,7 +81,7 @@ class TaskServiceTest {
         when(taskMapper.toDTO(task))
                 .thenReturn(expectedDto);
 
-        //act
+
         TaskDTO result = taskService.findById(1L);
 
         assertEquals(expectedDto, result);
@@ -112,7 +115,7 @@ class TaskServiceTest {
 
     @Test
     void updateTaskStatus_shouldUpdateTask() {
-        // Arrange: исходная задача
+
         Task task = new Task();
         task.setId(1L);
         task.setTitle("task1");
@@ -151,7 +154,7 @@ class TaskServiceTest {
     void updateTask_shouldUpdateTaskAndReturnDto() {
         Task task = new Task();
 
-        
+
         task.setId(1L);
         task.setTitle("task1");
         task.setDescription("description");
@@ -206,11 +209,11 @@ class TaskServiceTest {
         when(taskMapper.toDTO(task))
                 .thenReturn(expectedDto);
 
-        TaskDTO result = taskService.assignUserToTask(1L,1L);
+        TaskDTO result = taskService.assignUserToTask(1L, 1L);
 
-        assertSame(expectedDto,result);
+        assertSame(expectedDto, result);
 
-        assertEquals(user,task.getUser());
+        assertEquals(user, task.getUser());
 
         verify(userRepository).findById(1L);
         verify(taskRepository).findById(1L);
@@ -219,10 +222,111 @@ class TaskServiceTest {
     }
 
     @Test
-    void deleteTask_shouldDeleteTask(){
+    void deleteTask_shouldDeleteTask() {
         taskService.deleteTask(1L);
         verify(taskRepository).deleteById(1L);
 
+    }
+
+    @Test
+    void findById_shouldThrowTaskNotFoundException_whenTaskNotFound() {
+        when(taskRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        TaskNotFoundException exception = assertThrows(TaskNotFoundException.class,
+                () -> taskService.findById(1L));
+
+        assertEquals("Задача с id=1 не найдена", exception.getMessage());
+
+        verify(taskRepository).findById(1L);
+        verify(taskMapper, never()).toDTO(any());
+    }
+
+    @Test
+    void updateTask_shouldThrowTaskNotFoundException_whenTaskNotFound() {
+        TaskDTO requestDto = new TaskDTO();
+        requestDto.setTitle("new title");
+
+        when(taskRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        TaskNotFoundException exception = assertThrows(TaskNotFoundException.class,
+                () -> taskService.updateTask(1L, requestDto));
+
+        assertEquals("Задача с id=1 не найдена", exception.getMessage());
+
+        verify(taskRepository).findById(1L);
+        verify(taskRepository, never()).save(any());
+        verify(taskMapper, never()).toDTO(any());
+    }
+
+    @Test
+    void updateTaskStatusRequest_shouldThrowTaskNotFoundException_whenTaskNotFound() {
+        UpdateTaskStatusRequest request = new UpdateTaskStatusRequest();
+        request.setStatus(Status.IN_PROGRESS);
+
+        when(taskRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        TaskNotFoundException exception = assertThrows(TaskNotFoundException.class,
+                () -> taskService.updateTaskStatusRequest(1L, request));
+
+        assertEquals("Задача с id=1 не найдена", exception.getMessage());
+
+        verify(taskRepository).findById(1L);
+        verify(taskRepository, never()).save(any());
+    }
+
+    @Test
+    void assignUserToTask_shouldThrowUserNotFoundException_whenUserNotFound() {
+        when(userRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class,
+                () -> taskService.assignUserToTask(1L, 1L));
+
+        assertEquals("Пользователь с id=1 не найден", exception.getMessage());
+
+        verify(userRepository).findById(1L);
+        verify(taskRepository, never()).findById(any());
+        verify(taskRepository, never()).save(any());
+    }
+
+    @Test
+    void assignUserToTask_shouldThrowTaskNotFoundException_whenTaskNotFound() {
+        User user = new User();
+        user.setId(1L);
+
+        when(userRepository.findById(1L))
+                .thenReturn(Optional.of(user));
+        when(taskRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        TaskNotFoundException exception = assertThrows(TaskNotFoundException.class,
+                () -> taskService.assignUserToTask(1L, 1L));
+
+        assertEquals("Задача с id=1 не найдена", exception.getMessage());
+
+        verify(userRepository).findById(1L);
+        verify(taskRepository).findById(1L);
+        verify(taskRepository, never()).save(any());
+        verify(taskMapper, never()).toDTO(any());
+    }
+
+    @Test
+    void createTaskForUser_shouldThrowUserNotFoundException_whenUserNotFound() {
+        Task task = new Task();
+
+        when(userRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class,
+                () -> taskService.createTaskForUser(1L, task));
+
+        assertEquals("Пользователь с id=1 не найден", exception.getMessage());
+
+        verify(userRepository).findById(1L);
+        verify(taskRepository, never()).save(any());
     }
 
 }
